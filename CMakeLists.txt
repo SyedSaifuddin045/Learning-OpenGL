@@ -18,4 +18,3 @@ include_directories(${include_dir})
 add_executable(OpenglSetup ${source_files} ${header_files})
 find_package(glfw3 3.3 REQUIRED) 
 target_link_libraries(OpenglSetup PUBLIC GL dl glfw X11 Xrandr Xi)
-
