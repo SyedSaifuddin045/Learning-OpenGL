@@ -11,7 +11,11 @@ compile_commands.json
 config/
 lib/
 tags
-
+include/GLM/cmake/
+include/GLM/test/
+include/GLM/util/
+include/GLM//doc/
+include/GLM/CMakeLists.txt
 # User-specific files
 *.rsuser
 *.suo

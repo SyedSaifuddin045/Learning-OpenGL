@@ -1,6 +1,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <GLM/glm/glm.hpp>
+#include <GLM/glm/gtc/matrix_transform.hpp>
+#include <GLM/glm/gtc/type_ptr.hpp>
+
 #include <shader_s.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -68,13 +72,18 @@ int main()
     unsigned int texture1,texture2;
     glGenTextures(1,&texture1);
     glGenTextures(1,&texture2);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
     //loading 1st texture
     int width,height,nrChannels;
     unsigned char *data=stbi_load("Res/Textures/container.jpg",&width,&height,&nrChannels,0);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D,texture1);
+
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
+    
+
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
     if(data)
     {
         glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,width,height,0,GL_RGB,GL_UNSIGNED_BYTE ,data);
@@ -91,6 +100,12 @@ int main()
     unsigned char* data2=stbi_load("Res/Textures/awesomeface.png",&width2,&height2,&nrChannels2,0);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D,texture2);
+
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
+
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
     if(data2)
     {
         glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,width2,height2,0,GL_RGBA,GL_UNSIGNED_BYTE,data2);
@@ -128,10 +143,17 @@ int main()
     // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
     // glBindVertexArray(0);
 
+    // glm::vec4 vec(1.0f,0.0f,0.0f,1.0f);
+    // glm::mat4 trans = glm::mat4(1.0f);
+    // trans =glm::translate(trans,glm::vec3(1.0f,1.0f,0.0f));
+    // vec = trans *vec;
+    // std::cout<<vec.x<<vec.y<<vec.z<<std::endl;
+
     ourShader.use();
     glUniform1i(glGetUniformLocation(ourShader.ID,"texture1"),0);
 
     glUniform1i(glGetUniformLocation(ourShader.ID,"texture2"),1);
+
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -146,6 +168,12 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
         // render the triangle
         glBindVertexArray(VAO);
+        glm::mat4 trans = glm::mat4(1.0f);
+        trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+        trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+    
+        glUniformMatrix4fv(glGetUniformLocation(ourShader.ID,"transform"),1,GL_FALSE,glm::value_ptr(trans));
+
         glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,0);
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
